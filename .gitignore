@@ -22,3 +22,9 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Composer cache
+/.composer
+
+# PsySH config and history
+/.config
