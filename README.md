@@ -222,6 +222,35 @@ docker-compose exec app composer require package-name
 └── README.md
 ```
 
+## API Documentation
+
+This project includes a RESTful API for all Phase 1 entities. For detailed API documentation, see [API.md](API.md).
+
+**Base URL:** `http://localhost:8000/api/v1`
+
+**Available Endpoints:**
+- `GET|POST /organizations` - List and create organizations
+- `GET|PUT|DELETE /organizations/{id}` - Get, update, delete organization
+- `GET|POST /roles` - List and create roles
+- `GET|PUT|DELETE /roles/{id}` - Get, update, delete role
+- `GET|POST /users` - List and create users
+- `GET|PUT|DELETE /users/{id}` - Get, update, delete user
+- `GET|POST /teams` - List and create teams
+- `GET|PUT|DELETE /teams/{id}` - Get, update, delete team
+- `POST /teams/{id}/members` - Add member to team
+- `DELETE /teams/{id}/members/{userId}` - Remove member from team
+
+**Quick Test:**
+```bash
+# List all organizations with related data
+curl http://localhost:8000/api/v1/organizations
+
+# Get a specific team with relationships
+curl http://localhost:8000/api/v1/teams/1
+```
+
+All endpoints return JSON responses using Laravel API Resources. See [API.md](API.md) for complete documentation including request/response examples and validation rules.
+
 ## Development Status
 
 ### Phase 1 - Core Structure ✅ (Completed)
@@ -233,6 +262,11 @@ docker-compose exec app composer require package-name
 - [x] Team members pivot table
 - [x] Database seeders
 - [x] Comprehensive tests (25 passing)
+- [x] REST API endpoints with Laravel API Resources
+- [x] API Resource transformers for all models
+- [x] API Controllers with full CRUD operations
+- [x] API tests (31 passing, 147 assertions)
+- [x] Team member management endpoints
 
 ### Phase 2 - Projects and Team Collaboration (In Progress)
 
