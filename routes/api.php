@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\OrganizationController;
+use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\TeamController;
@@ -20,4 +21,9 @@ Route::prefix('v1')->group(function () {
     Route::apiResource('teams', TeamController::class);
     Route::post('teams/{team}/members', [TeamController::class, 'addMember']);
     Route::delete('teams/{team}/members/{userId}', [TeamController::class, 'removeMember']);
+    
+    // Projects
+    Route::apiResource('projects', ProjectController::class);
+    Route::post('projects/{project}/teams', [ProjectController::class, 'assignTeam']);
+    Route::delete('projects/{project}/teams/{teamId}', [ProjectController::class, 'removeTeam']);
 });
