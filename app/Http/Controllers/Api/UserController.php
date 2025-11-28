@@ -25,6 +25,8 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorize('create', User::class);
+
         $validated = $request->validate([
             'organization_id' => 'required|exists:organizations,id',
             'role_id' => 'required|exists:roles,id',
@@ -54,6 +56,8 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
+        $this->authorize('update', $user);
+
         $validated = $request->validate([
             'organization_id' => 'sometimes|required|exists:organizations,id',
             'role_id' => 'sometimes|required|exists:roles,id',
@@ -76,6 +80,8 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
+        $this->authorize('delete', $user);
+
         $user->delete();
         return response()->json(null, Response::HTTP_NO_CONTENT);
     }

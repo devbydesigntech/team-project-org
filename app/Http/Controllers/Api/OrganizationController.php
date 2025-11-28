@@ -24,6 +24,8 @@ class OrganizationController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorize('create', Organization::class);
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
         ]);
@@ -46,8 +48,10 @@ class OrganizationController extends Controller
      */
     public function update(Request $request, Organization $organization)
     {
+        $this->authorize('update', $organization);
+
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'sometimes|required|string|max:255',
         ]);
 
         $organization->update($validated);
@@ -59,6 +63,8 @@ class OrganizationController extends Controller
      */
     public function destroy(Organization $organization)
     {
+        $this->authorize('delete', $organization);
+
         $organization->delete();
         return response()->json(null, Response::HTTP_NO_CONTENT);
     }

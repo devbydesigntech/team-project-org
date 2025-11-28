@@ -24,6 +24,8 @@ class TeamController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorize('create', Team::class);
+
         $validated = $request->validate([
             'organization_id' => 'required|exists:organizations,id',
             'manager_id' => 'nullable|exists:users,id',
@@ -49,6 +51,8 @@ class TeamController extends Controller
      */
     public function update(Request $request, Team $team)
     {
+        $this->authorize('update', $team);
+
         $validated = $request->validate([
             'organization_id' => 'sometimes|required|exists:organizations,id',
             'manager_id' => 'nullable|exists:users,id',
@@ -65,6 +69,8 @@ class TeamController extends Controller
      */
     public function destroy(Team $team)
     {
+        $this->authorize('delete', $team);
+
         $team->delete();
         return response()->json(null, Response::HTTP_NO_CONTENT);
     }
@@ -74,6 +80,8 @@ class TeamController extends Controller
      */
     public function addMember(Request $request, Team $team)
     {
+        $this->authorize('addMember', $team);
+
         $validated = $request->validate([
             'user_id' => 'required|exists:users,id',
             'team_role' => 'nullable|string|max:255',
@@ -92,6 +100,8 @@ class TeamController extends Controller
      */
     public function removeMember(Team $team, int $userId)
     {
+        $this->authorize('removeMember', $team);
+
         $team->members()->detach($userId);
         return response()->json(['message' => 'Member removed successfully']);
     }

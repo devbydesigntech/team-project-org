@@ -24,6 +24,8 @@ class RoleController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorize('create', Role::class);
+
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:roles',
         ]);
@@ -45,8 +47,10 @@ class RoleController extends Controller
      */
     public function update(Request $request, Role $role)
     {
+        $this->authorize('update', $role);
+
         $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:roles,name,' . $role->id,
+            'name' => 'sometimes|required|string|max:255|unique:roles,name,' . $role->id,
         ]);
 
         $role->update($validated);
@@ -58,6 +62,8 @@ class RoleController extends Controller
      */
     public function destroy(Role $role)
     {
+        $this->authorize('delete', $role);
+
         $role->delete();
         return response()->json(null, Response::HTTP_NO_CONTENT);
     }
