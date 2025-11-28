@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AdvisoryAssignmentController;
 use App\Http\Controllers\Api\OrganizationController;
 use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\RoleController;
@@ -26,4 +27,7 @@ Route::prefix('v1')->group(function () {
     Route::apiResource('projects', ProjectController::class);
     Route::post('projects/{project}/teams', [ProjectController::class, 'assignTeam']);
     Route::delete('projects/{project}/teams/{teamId}', [ProjectController::class, 'removeTeam']);
+    
+    // Advisory Assignments
+    Route::apiResource('advisory-assignments', AdvisoryAssignmentController::class);
 });

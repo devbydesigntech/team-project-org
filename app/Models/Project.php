@@ -46,20 +46,19 @@ class Project extends Model
 
     /**
      * Get all advisory assignments for this project
-     * (Will be implemented in Phase 3)
      */
-    // public function advisoryAssignments(): HasMany
-    // {
-    //     return $this->hasMany(AdvisoryAssignment::class);
-    // }
+    public function advisoryAssignments(): HasMany
+    {
+        return $this->hasMany(AdvisoryAssignment::class);
+    }
 
     /**
      * Get all advisors (users) assigned to this project
-     * (Will be implemented in Phase 3)
      */
-    // public function advisors(): BelongsToMany
-    // {
-    //     return $this->belongsToMany(User::class, 'advisory_assignments')
-    //         ->withTimestamps();
-    // }
+    public function advisors(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'advisory_assignments')
+            ->withPivot('starts_at', 'ends_at')
+            ->withTimestamps();
+    }
 }
