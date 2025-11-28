@@ -9,7 +9,7 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\TeamController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('v1')->group(function () {
+Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     // Organizations
     Route::apiResource('organizations', OrganizationController::class);
     

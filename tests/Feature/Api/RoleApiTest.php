@@ -35,7 +35,7 @@ class RoleApiTest extends TestCase
     {
         Role::factory()->count(3)->create();
 
-        $response = $this->getJson('/api/v1/roles');
+        $response = $this->actingAs($this->manager)->getJson('/api/v1/roles');
 
         $response->assertStatus(200)
             ->assertJsonCount(5, 'data')
@@ -73,7 +73,7 @@ class RoleApiTest extends TestCase
     {
         $role = Role::factory()->create();
 
-        $response = $this->getJson("/api/v1/roles/{$role->id}");
+        $response = $this->actingAs($this->manager)->getJson("/api/v1/roles/{$role->id}");
 
         $response->assertStatus(200)
             ->assertJsonFragment([

@@ -378,15 +378,35 @@ This project includes a complete RESTful API with JSON responses using Laravel A
 
 ### Authentication
 
-The API uses Laravel Sanctum for authentication. Include the user token in requests:
+⚠️ **All API endpoints require authentication using Laravel Sanctum.**
+
+To use the API, you need to:
+
+1. Create a personal access token for a user
+2. Include the token in the Authorization header
+
+**For testing with Tinker:**
+
+```bash
+docker exec -it laravel_app php artisan tinker
+
+# Create a token for a user
+$user = App\Models\User::first();
+$token = $user->createToken('test-token')->plainTextToken;
+echo $token;
+```
+
+**Using the token in requests:**
 
 ```bash
 # Example authenticated request
-curl -H "Authorization: Bearer {token}" \
+curl -H "Authorization: Bearer YOUR_TOKEN_HERE" \
      http://localhost:8000/api/v1/reviews
 ```
 
-For testing purposes, you can authenticate as any seeded user.
+**For automated testing:**
+
+The test suite handles authentication automatically using `actingAs()` method.
 
 ### Quick API Tests
 

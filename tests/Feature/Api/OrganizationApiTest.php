@@ -35,7 +35,7 @@ class OrganizationApiTest extends TestCase
     {
         Organization::factory()->count(3)->create();
 
-        $response = $this->getJson('/api/v1/organizations');
+        $response = $this->actingAs($this->manager)->getJson('/api/v1/organizations');
 
         $response->assertStatus(200)
             ->assertJsonCount(4, 'data')
@@ -73,7 +73,7 @@ class OrganizationApiTest extends TestCase
     {
         $organization = Organization::factory()->create();
 
-        $response = $this->getJson("/api/v1/organizations/{$organization->id}");
+        $response = $this->actingAs($this->manager)->getJson("/api/v1/organizations/{$organization->id}");
 
         $response->assertStatus(200)
             ->assertJsonFragment([

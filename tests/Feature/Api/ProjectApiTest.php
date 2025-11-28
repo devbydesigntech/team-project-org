@@ -39,7 +39,7 @@ class ProjectApiTest extends TestCase
             'organization_id' => $this->organization->id,
         ]);
 
-        $response = $this->getJson('/api/v1/projects');
+        $response = $this->actingAs($this->manager)->getJson('/api/v1/projects');
 
         $response->assertStatus(200)
             ->assertJsonCount(3, 'data')
@@ -90,7 +90,7 @@ class ProjectApiTest extends TestCase
             'organization_id' => $this->organization->id,
         ]);
 
-        $response = $this->getJson("/api/v1/projects/{$project->id}");
+        $response = $this->actingAs($this->manager)->getJson("/api/v1/projects/{$project->id}");
 
         $response->assertStatus(200)
             ->assertJsonFragment([
@@ -266,7 +266,7 @@ class ProjectApiTest extends TestCase
 
         $project->teams()->attach($team->id);
 
-        $response = $this->getJson("/api/v1/projects/{$project->id}");
+        $response = $this->actingAs($this->manager)->getJson("/api/v1/projects/{$project->id}");
 
         $response->assertStatus(200)
             ->assertJsonStructure([

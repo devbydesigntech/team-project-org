@@ -38,7 +38,7 @@ class UserApiTest extends TestCase
             'role_id' => $this->executiveRole->id
         ]);
 
-        $response = $this->getJson('/api/v1/users');
+        $response = $this->actingAs($this->manager)->getJson('/api/v1/users');
 
         $response->assertStatus(200)
             ->assertJsonCount(5, 'data')
@@ -98,7 +98,7 @@ class UserApiTest extends TestCase
             'role_id' => $this->executiveRole->id
         ]);
 
-        $response = $this->getJson("/api/v1/users/{$user->id}");
+        $response = $this->actingAs($this->manager)->getJson("/api/v1/users/{$user->id}");
 
         $response->assertStatus(200)
             ->assertJsonFragment([

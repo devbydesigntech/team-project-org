@@ -43,7 +43,7 @@ class AdvisoryAssignmentApiTest extends TestCase
             'project_id' => $project->id,
         ]);
 
-        $response = $this->getJson('/api/v1/advisory-assignments');
+        $response = $this->actingAs($this->manager)->getJson('/api/v1/advisory-assignments');
 
         $response->assertStatus(200)
             ->assertJsonCount(3, 'data')
@@ -110,7 +110,7 @@ class AdvisoryAssignmentApiTest extends TestCase
             'project_id' => $project->id,
         ]);
 
-        $response = $this->getJson("/api/v1/advisory-assignments/{$assignment->id}");
+        $response = $this->actingAs($this->manager)->getJson("/api/v1/advisory-assignments/{$assignment->id}");
 
         $response->assertStatus(200)
             ->assertJsonFragment([
@@ -239,7 +239,7 @@ class AdvisoryAssignmentApiTest extends TestCase
             'project_id' => $project->id,
         ]);
 
-        $response = $this->getJson("/api/v1/advisory-assignments/{$assignment->id}");
+        $response = $this->actingAs($this->manager)->getJson("/api/v1/advisory-assignments/{$assignment->id}");
 
         $response->assertStatus(200)
             ->assertJsonStructure([
