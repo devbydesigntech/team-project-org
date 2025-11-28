@@ -16,11 +16,19 @@ class TeamApiTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        
+        $this->executiveRole = Role::factory()->create(['name' => 'executive']);
+        $this->managerRole = Role::factory()->create(['name' => 'manager']);
         $this->organization = Organization::factory()->create();
-        $this->role = Role::factory()->create();
+        
+        $this->executive = User::factory()->create([
+            'organization_id' => $this->organization->id,
+            'role_id' => $this->executiveRole->id,
+        ]);
+        
         $this->manager = User::factory()->create([
             'organization_id' => $this->organization->id,
-            'role_id' => $this->role->id
+            'role_id' => $this->managerRole->id,
         ]);
     }
 
@@ -42,7 +50,7 @@ class TeamApiTest extends TestCase
             ]);
     }
 
-    public function test_can_create_team(): void
+    public function test_executive_can_create_team(): void
     {
         $data = [
             'name' => 'Test Team',
@@ -50,7 +58,8 @@ class TeamApiTest extends TestCase
             'manager_id' => $this->manager->id
         ];
 
-        $response = $this->postJson('/api/v1/teams', $data);
+        $response = $this->actingAs($this->executive)
+            ->postJson('/api/v1/teams', $data);
 
         $response->assertStatus(201)
             ->assertJsonFragment(['name' => 'Test Team']);
@@ -58,14 +67,29 @@ class TeamApiTest extends TestCase
         $this->assertDatabaseHas('teams', $data);
     }
 
-    public function test_can_create_team_without_manager(): void
+    public function test_non_executive_cannot_create_team(): void
+    {
+        $data = [
+            'name' => 'Test Team',
+            'organization_id' => $this->organization->id,
+            'manager_id' => $this->manager->id
+        ];
+
+        $response = $this->actingAs($this->manager)
+            ->postJson('/api/v1/teams', $data);
+
+        $response->assertStatus(403);
+    }
+
+    public function test_executive_can_create_team_without_manager(): void
     {
         $data = [
             'name' => 'Test Team',
             'organization_id' => $this->organization->id
         ];
 
-        $response = $this->postJson('/api/v1/teams', $data);
+        $response = $this->actingAs($this->executive)
+            ->postJson('/api/v1/teams', $data);
 
         $response->assertStatus(201)
             ->assertJsonFragment(['name' => 'Test Team']);
@@ -89,7 +113,7 @@ class TeamApiTest extends TestCase
             ]);
     }
 
-    public function test_can_update_team(): void
+    public function test_executive_can_update_team(): void
     {
         $team = Team::factory()->create([
             'organization_id' => $this->organization->id,
@@ -98,7 +122,8 @@ class TeamApiTest extends TestCase
 
         $data = ['name' => 'Updated Team'];
 
-        $response = $this->putJson("/api/v1/teams/{$team->id}", $data);
+        $response = $this->actingAs($this->executive)
+            ->putJson("/api/v1/teams/{$team->id}", $data);
 
         $response->assertStatus(200)
             ->assertJsonFragment(['name' => 'Updated Team']);
@@ -109,28 +134,58 @@ class TeamApiTest extends TestCase
         ]);
     }
 
-    public function test_can_delete_team(): void
+    public function test_non_executive_cannot_update_team(): void
     {
         $team = Team::factory()->create([
             'organization_id' => $this->organization->id,
             'manager_id' => $this->manager->id
         ]);
 
-        $response = $this->deleteJson("/api/v1/teams/{$team->id}");
+        $data = ['name' => 'Updated Team'];
+
+        $response = $this->actingAs($this->manager)
+            ->putJson("/api/v1/teams/{$team->id}", $data);
+
+        $response->assertStatus(403);
+    }
+
+    public function test_executive_can_delete_team(): void
+    {
+        $team = Team::factory()->create([
+            'organization_id' => $this->organization->id,
+            'manager_id' => $this->manager->id
+        ]);
+
+        $response = $this->actingAs($this->executive)
+            ->deleteJson("/api/v1/teams/{$team->id}");
 
         $response->assertStatus(204);
         $this->assertDatabaseMissing('teams', ['id' => $team->id]);
     }
 
+    public function test_non_executive_cannot_delete_team(): void
+    {
+        $team = Team::factory()->create([
+            'organization_id' => $this->organization->id,
+            'manager_id' => $this->manager->id
+        ]);
+
+        $response = $this->actingAs($this->manager)
+            ->deleteJson("/api/v1/teams/{$team->id}");
+
+        $response->assertStatus(403);
+    }
+
     public function test_validation_fails_without_required_fields(): void
     {
-        $response = $this->postJson('/api/v1/teams', []);
+        $response = $this->actingAs($this->executive)
+            ->postJson('/api/v1/teams', []);
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['name', 'organization_id']);
     }
 
-    public function test_can_add_member_to_team(): void
+    public function test_executive_can_add_member_to_team(): void
     {
         $team = Team::factory()->create([
             'organization_id' => $this->organization->id,
@@ -139,7 +194,7 @@ class TeamApiTest extends TestCase
 
         $user = User::factory()->create([
             'organization_id' => $this->organization->id,
-            'role_id' => $this->role->id
+            'role_id' => $this->managerRole->id
         ]);
 
         $data = [
@@ -147,7 +202,8 @@ class TeamApiTest extends TestCase
             'team_role' => 'Developer'
         ];
 
-        $response = $this->postJson("/api/v1/teams/{$team->id}/members", $data);
+        $response = $this->actingAs($this->executive)
+            ->postJson("/api/v1/teams/{$team->id}/members", $data);
 
         $response->assertStatus(200);
 
@@ -158,7 +214,7 @@ class TeamApiTest extends TestCase
         ]);
     }
 
-    public function test_can_remove_member_from_team(): void
+    public function test_non_executive_cannot_add_member_to_team(): void
     {
         $team = Team::factory()->create([
             'organization_id' => $this->organization->id,
@@ -167,12 +223,36 @@ class TeamApiTest extends TestCase
 
         $user = User::factory()->create([
             'organization_id' => $this->organization->id,
-            'role_id' => $this->role->id
+            'role_id' => $this->managerRole->id
+        ]);
+
+        $data = [
+            'user_id' => $user->id,
+            'team_role' => 'Developer'
+        ];
+
+        $response = $this->actingAs($this->manager)
+            ->postJson("/api/v1/teams/{$team->id}/members", $data);
+
+        $response->assertStatus(403);
+    }
+
+    public function test_executive_can_remove_member_from_team(): void
+    {
+        $team = Team::factory()->create([
+            'organization_id' => $this->organization->id,
+            'manager_id' => $this->manager->id
+        ]);
+
+        $user = User::factory()->create([
+            'organization_id' => $this->organization->id,
+            'role_id' => $this->managerRole->id
         ]);
 
         $team->members()->attach($user->id, ['team_role' => 'Developer']);
 
-        $response = $this->deleteJson("/api/v1/teams/{$team->id}/members/{$user->id}");
+        $response = $this->actingAs($this->executive)
+            ->deleteJson("/api/v1/teams/{$team->id}/members/{$user->id}");
 
         $response->assertStatus(200);
 
@@ -180,6 +260,26 @@ class TeamApiTest extends TestCase
             'team_id' => $team->id,
             'user_id' => $user->id
         ]);
+    }
+
+    public function test_non_executive_cannot_remove_member_from_team(): void
+    {
+        $team = Team::factory()->create([
+            'organization_id' => $this->organization->id,
+            'manager_id' => $this->manager->id
+        ]);
+
+        $user = User::factory()->create([
+            'organization_id' => $this->organization->id,
+            'role_id' => $this->managerRole->id
+        ]);
+
+        $team->members()->attach($user->id, ['team_role' => 'Developer']);
+
+        $response = $this->actingAs($this->manager)
+            ->deleteJson("/api/v1/teams/{$team->id}/members/{$user->id}");
+
+        $response->assertStatus(403);
     }
 
     public function test_team_includes_relationships_when_requested(): void
@@ -191,7 +291,7 @@ class TeamApiTest extends TestCase
 
         $user = User::factory()->create([
             'organization_id' => $this->organization->id,
-            'role_id' => $this->role->id
+            'role_id' => $this->managerRole->id
         ]);
 
         $team->members()->attach($user->id);

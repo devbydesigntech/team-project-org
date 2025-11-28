@@ -15,21 +15,33 @@ class UserApiTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        
+        $this->executiveRole = Role::factory()->create(['name' => 'executive']);
+        $this->managerRole = Role::factory()->create(['name' => 'manager']);
         $this->organization = Organization::factory()->create();
-        $this->role = Role::factory()->create();
+        
+        $this->executive = User::factory()->create([
+            'organization_id' => $this->organization->id,
+            'role_id' => $this->executiveRole->id,
+        ]);
+        
+        $this->manager = User::factory()->create([
+            'organization_id' => $this->organization->id,
+            'role_id' => $this->managerRole->id,
+        ]);
     }
 
     public function test_can_list_users(): void
     {
         User::factory()->count(3)->create([
             'organization_id' => $this->organization->id,
-            'role_id' => $this->role->id
+            'role_id' => $this->executiveRole->id
         ]);
 
         $response = $this->getJson('/api/v1/users');
 
         $response->assertStatus(200)
-            ->assertJsonCount(3, 'data')
+            ->assertJsonCount(5, 'data')
             ->assertJsonStructure([
                 'data' => [
                     '*' => ['id', 'name', 'email', 'organization_id', 'role_id']
@@ -37,17 +49,18 @@ class UserApiTest extends TestCase
             ]);
     }
 
-    public function test_can_create_user(): void
+    public function test_executive_can_create_user(): void
     {
         $data = [
             'name' => 'Test User',
             'email' => 'test@example.com',
             'password' => 'password123',
             'organization_id' => $this->organization->id,
-            'role_id' => $this->role->id
+            'role_id' => $this->executiveRole->id
         ];
 
-        $response = $this->postJson('/api/v1/users', $data);
+        $response = $this->actingAs($this->executive)
+            ->postJson('/api/v1/users', $data);
 
         $response->assertStatus(201)
             ->assertJsonFragment([
@@ -62,11 +75,27 @@ class UserApiTest extends TestCase
         ]);
     }
 
+    public function test_non_executive_cannot_create_user(): void
+    {
+        $data = [
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+            'password' => 'password123',
+            'organization_id' => $this->organization->id,
+            'role_id' => $this->executiveRole->id
+        ];
+
+        $response = $this->actingAs($this->manager)
+            ->postJson('/api/v1/users', $data);
+
+        $response->assertStatus(403);
+    }
+
     public function test_can_show_user(): void
     {
         $user = User::factory()->create([
             'organization_id' => $this->organization->id,
-            'role_id' => $this->role->id
+            'role_id' => $this->executiveRole->id
         ]);
 
         $response = $this->getJson("/api/v1/users/{$user->id}");
@@ -79,16 +108,17 @@ class UserApiTest extends TestCase
             ->assertJsonMissing(['password']);
     }
 
-    public function test_can_update_user(): void
+    public function test_executive_can_update_user(): void
     {
         $user = User::factory()->create([
             'organization_id' => $this->organization->id,
-            'role_id' => $this->role->id
+            'role_id' => $this->executiveRole->id
         ]);
 
         $data = ['name' => 'Updated User'];
 
-        $response = $this->putJson("/api/v1/users/{$user->id}", $data);
+        $response = $this->actingAs($this->executive)
+            ->putJson("/api/v1/users/{$user->id}", $data);
 
         $response->assertStatus(200)
             ->assertJsonFragment(['name' => 'Updated User']);
@@ -99,22 +129,52 @@ class UserApiTest extends TestCase
         ]);
     }
 
-    public function test_can_delete_user(): void
+    public function test_non_executive_cannot_update_user(): void
     {
         $user = User::factory()->create([
             'organization_id' => $this->organization->id,
-            'role_id' => $this->role->id
+            'role_id' => $this->executiveRole->id
         ]);
 
-        $response = $this->deleteJson("/api/v1/users/{$user->id}");
+        $data = ['name' => 'Updated User'];
+
+        $response = $this->actingAs($this->manager)
+            ->putJson("/api/v1/users/{$user->id}", $data);
+
+        $response->assertStatus(403);
+    }
+
+    public function test_executive_can_delete_user(): void
+    {
+        $user = User::factory()->create([
+            'organization_id' => $this->organization->id,
+            'role_id' => $this->executiveRole->id
+        ]);
+
+        $response = $this->actingAs($this->executive)
+            ->deleteJson("/api/v1/users/{$user->id}");
 
         $response->assertStatus(204);
         $this->assertDatabaseMissing('users', ['id' => $user->id]);
     }
 
+    public function test_non_executive_cannot_delete_user(): void
+    {
+        $user = User::factory()->create([
+            'organization_id' => $this->organization->id,
+            'role_id' => $this->executiveRole->id
+        ]);
+
+        $response = $this->actingAs($this->manager)
+            ->deleteJson("/api/v1/users/{$user->id}");
+
+        $response->assertStatus(403);
+    }
+
     public function test_validation_fails_without_required_fields(): void
     {
-        $response = $this->postJson('/api/v1/users', []);
+        $response = $this->actingAs($this->executive)
+            ->postJson('/api/v1/users', []);
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['name', 'email', 'password', 'organization_id', 'role_id']);
@@ -125,7 +185,7 @@ class UserApiTest extends TestCase
         User::factory()->create([
             'email' => 'duplicate@example.com',
             'organization_id' => $this->organization->id,
-            'role_id' => $this->role->id
+            'role_id' => $this->executiveRole->id
         ]);
 
         $data = [
@@ -133,10 +193,11 @@ class UserApiTest extends TestCase
             'email' => 'duplicate@example.com',
             'password' => 'password123',
             'organization_id' => $this->organization->id,
-            'role_id' => $this->role->id
+            'role_id' => $this->executiveRole->id
         ];
 
-        $response = $this->postJson('/api/v1/users', $data);
+        $response = $this->actingAs($this->executive)
+            ->postJson('/api/v1/users', $data);
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['email']);
@@ -149,10 +210,11 @@ class UserApiTest extends TestCase
             'email' => 'hash-test@example.com',
             'password' => 'plaintext-password',
             'organization_id' => $this->organization->id,
-            'role_id' => $this->role->id
+            'role_id' => $this->executiveRole->id
         ];
 
-        $this->postJson('/api/v1/users', $data);
+        $this->actingAs($this->executive)
+            ->postJson('/api/v1/users', $data);
 
         $user = User::where('email', 'hash-test@example.com')->first();
         $this->assertNotEquals('plaintext-password', $user->password);
