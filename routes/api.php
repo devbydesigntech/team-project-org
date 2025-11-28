@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AdvisoryAssignmentController;
 use App\Http\Controllers\Api\OrganizationController;
 use App\Http\Controllers\Api\ProjectController;
+use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\TeamController;
@@ -30,4 +31,7 @@ Route::prefix('v1')->group(function () {
     
     // Advisory Assignments
     Route::apiResource('advisory-assignments', AdvisoryAssignmentController::class);
+    
+    // Reviews
+    Route::apiResource('reviews', ReviewController::class);
 });

@@ -37,12 +37,11 @@ class Project extends Model
 
     /**
      * Get all reviews for this project
-     * (Will be implemented in Phase 4)
      */
-    // public function reviews(): HasMany
-    // {
-    //     return $this->hasMany(Review::class);
-    // }
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
 
     /**
      * Get all advisory assignments for this project
