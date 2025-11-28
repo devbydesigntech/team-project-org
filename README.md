@@ -18,12 +18,12 @@ This application manages a multi-team organization where:
 ✅ **Project Management** with team collaboration  
 ✅ **Advisory System** for temporary cross-team roles  
 ✅ **Review System** with visibility rules and anonymization  
-✅ **177 Tests** passing with 474 assertions  
+✅ **177 Tests** passing with 476 assertions  
 
 ## Tech Stack
 
 - **Framework:** Laravel 12
-- **Database:** MySQL 8.0 (Production), SQLite (Testing)
+- **Database:** MySQL 8.0 (Application & Testing)
 - **PHP:** 8.3+
 - **Server:** Nginx
 - **Containerization:** Docker & Docker Compose
@@ -79,7 +79,7 @@ docker exec laravel_app php artisan db:seed
 docker exec laravel_app php artisan test
 ```
 
-You should see: **177 tests passing (474 assertions)**
+You should see: **177 tests passing (476 assertions)**
 
 ### 5. Access the Application
 
@@ -87,14 +87,21 @@ The API will be available at: **http://localhost:8000/api/v1**
 
 ## Database Configuration
 
-The MySQL database is configured with:
+### Application Database
+The MySQL database for the application is configured with:
 - **Database:** laravel
 - **Username:** laravel
 - **Password:** root
 - **Host (internal):** mysql
 - **Port (external):** 3307
 
-To modify these settings, update the `.env` file.
+### Test Database
+Tests run against a separate MySQL database:
+- **Database:** laravel_test
+- **Connection:** Same MySQL server
+- **Isolation:** Database is refreshed between tests using `RefreshDatabase` trait
+
+To modify these settings, update the `.env` file and `phpunit.xml`.
 
 ## Seeded Data
 

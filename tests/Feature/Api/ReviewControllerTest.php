@@ -27,9 +27,9 @@ class ReviewControllerTest extends TestCase
         parent::setUp();
 
         $this->organization = Organization::factory()->create();
-        $this->executiveRole = Role::factory()->create(['name' => 'executive']);
-        $this->managerRole = Role::factory()->create(['name' => 'manager']);
-        $this->associateRole = Role::factory()->create(['name' => 'associate']);
+        $this->executiveRole = Role::firstOrCreate(['name' => 'executive']);
+        $this->managerRole = Role::firstOrCreate(['name' => 'manager']);
+        $this->associateRole = Role::firstOrCreate(['name' => 'associate']);
 
         $this->executive = User::factory()->create([
             'organization_id' => $this->organization->id,

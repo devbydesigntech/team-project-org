@@ -16,9 +16,9 @@ class RolePolicyTest extends TestCase
     {
         parent::setUp();
         
-        $this->executiveRole = Role::factory()->create(['name' => 'executive']);
-        $this->managerRole = Role::factory()->create(['name' => 'manager']);
-        $this->associateRole = Role::factory()->create(['name' => 'associate']);
+        $this->executiveRole = Role::firstOrCreate(['name' => 'executive']);
+        $this->managerRole = Role::firstOrCreate(['name' => 'manager']);
+        $this->associateRole = Role::firstOrCreate(['name' => 'associate']);
         
         $this->organization = Organization::factory()->create();
         
@@ -64,7 +64,7 @@ class RolePolicyTest extends TestCase
 
     public function test_executive_can_update_role(): void
     {
-        $role = Role::factory()->create(['name' => 'Analyst']);
+        $role = Role::firstOrCreate(['name' => 'Analyst']);
 
         $response = $this->actingAs($this->executive)
             ->putJson("/api/v1/roles/{$role->id}", ['name' => 'Senior Analyst']);
@@ -74,7 +74,7 @@ class RolePolicyTest extends TestCase
 
     public function test_manager_cannot_update_role(): void
     {
-        $role = Role::factory()->create(['name' => 'Analyst']);
+        $role = Role::firstOrCreate(['name' => 'Analyst']);
 
         $response = $this->actingAs($this->manager)
             ->putJson("/api/v1/roles/{$role->id}", ['name' => 'Senior Analyst']);
@@ -84,7 +84,7 @@ class RolePolicyTest extends TestCase
 
     public function test_executive_can_delete_role(): void
     {
-        $role = Role::factory()->create(['name' => 'Analyst']);
+        $role = Role::firstOrCreate(['name' => 'Analyst']);
 
         $response = $this->actingAs($this->executive)
             ->deleteJson("/api/v1/roles/{$role->id}");
@@ -94,7 +94,7 @@ class RolePolicyTest extends TestCase
 
     public function test_manager_cannot_delete_role(): void
     {
-        $role = Role::factory()->create(['name' => 'Analyst']);
+        $role = Role::firstOrCreate(['name' => 'Analyst']);
 
         $response = $this->actingAs($this->manager)
             ->deleteJson("/api/v1/roles/{$role->id}");

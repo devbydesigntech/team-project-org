@@ -16,8 +16,8 @@ class RoleApiTest extends TestCase
     {
         parent::setUp();
         
-        $this->executiveRole = Role::factory()->create(['name' => 'executive']);
-        $this->managerRole = Role::factory()->create(['name' => 'manager']);
+        $this->executiveRole = Role::firstOrCreate(['name' => 'executive']);
+        $this->managerRole = Role::firstOrCreate(['name' => 'manager']);
         $this->organization = Organization::factory()->create();
         
         $this->executive = User::factory()->create([
@@ -33,12 +33,13 @@ class RoleApiTest extends TestCase
 
     public function test_can_list_roles(): void
     {
+        // Create 3 additional roles (we already have 3 from setup: executive, manager, associate)
         Role::factory()->count(3)->create();
 
         $response = $this->actingAs($this->manager)->getJson('/api/v1/roles');
 
         $response->assertStatus(200)
-            ->assertJsonCount(5, 'data')
+            ->assertJsonCount(6, 'data')
             ->assertJsonStructure([
                 'data' => [
                     '*' => ['id', 'name']
@@ -71,7 +72,7 @@ class RoleApiTest extends TestCase
 
     public function test_can_show_role(): void
     {
-        $role = Role::factory()->create();
+        $role = Role::inRandomOrder()->first();
 
         $response = $this->actingAs($this->manager)->getJson("/api/v1/roles/{$role->id}");
 
@@ -84,7 +85,7 @@ class RoleApiTest extends TestCase
 
     public function test_executive_can_update_role(): void
     {
-        $role = Role::factory()->create();
+        $role = Role::inRandomOrder()->first();
         $data = ['name' => 'Updated Role'];
 
         $response = $this->actingAs($this->executive)
@@ -98,7 +99,7 @@ class RoleApiTest extends TestCase
 
     public function test_non_executive_cannot_update_role(): void
     {
-        $role = Role::factory()->create();
+        $role = Role::inRandomOrder()->first();
         $data = ['name' => 'Updated Role'];
 
         $response = $this->actingAs($this->manager)
@@ -109,7 +110,7 @@ class RoleApiTest extends TestCase
 
     public function test_executive_can_delete_role(): void
     {
-        $role = Role::factory()->create();
+        $role = Role::inRandomOrder()->first();
 
         $response = $this->actingAs($this->executive)
             ->deleteJson("/api/v1/roles/{$role->id}");
@@ -120,7 +121,7 @@ class RoleApiTest extends TestCase
 
     public function test_non_executive_cannot_delete_role(): void
     {
-        $role = Role::factory()->create();
+        $role = Role::inRandomOrder()->first();
 
         $response = $this->actingAs($this->manager)
             ->deleteJson("/api/v1/roles/{$role->id}");
@@ -139,7 +140,7 @@ class RoleApiTest extends TestCase
 
     public function test_validation_fails_when_creating_duplicate_role(): void
     {
-        Role::factory()->create(['name' => 'Unique Role']);
+        Role::firstOrCreate(['name' => 'Unique Role']);
 
         $response = $this->actingAs($this->executive)
             ->postJson('/api/v1/roles', ['name' => 'Unique Role']);

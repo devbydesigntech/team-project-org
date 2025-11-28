@@ -18,8 +18,8 @@ class ProjectApiTest extends TestCase
     {
         parent::setUp();
         
-        $this->executiveRole = Role::factory()->create(['name' => 'executive']);
-        $this->managerRole = Role::factory()->create(['name' => 'manager']);
+        $this->executiveRole = Role::firstOrCreate(['name' => 'executive']);
+        $this->managerRole = Role::firstOrCreate(['name' => 'manager']);
         $this->organization = Organization::factory()->create();
         
         $this->executive = User::factory()->create([

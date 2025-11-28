@@ -17,7 +17,7 @@ class AdvisoryAssignmentTest extends TestCase
     public function test_advisory_assignment_can_be_created(): void
     {
         $organization = Organization::factory()->create();
-        $role = Role::factory()->create(['name' => 'manager']);
+        $role = Role::firstOrCreate(['name' => 'manager']);
         $user = User::factory()->create([
             'organization_id' => $organization->id,
             'role_id' => $role->id,
@@ -40,7 +40,7 @@ class AdvisoryAssignmentTest extends TestCase
     public function test_advisory_assignment_belongs_to_user(): void
     {
         $organization = Organization::factory()->create();
-        $role = Role::factory()->create(['name' => 'associate']);
+        $role = Role::firstOrCreate(['name' => 'associate']);
         $user = User::factory()->create([
             'organization_id' => $organization->id,
             'role_id' => $role->id,
@@ -78,7 +78,7 @@ class AdvisoryAssignmentTest extends TestCase
     public function test_user_can_have_multiple_advisory_assignments(): void
     {
         $organization = Organization::factory()->create();
-        $role = Role::factory()->create(['name' => 'manager']);
+        $role = Role::firstOrCreate(['name' => 'manager']);
         $user = User::factory()->create([
             'organization_id' => $organization->id,
             'role_id' => $role->id,
@@ -103,7 +103,7 @@ class AdvisoryAssignmentTest extends TestCase
     public function test_project_can_have_multiple_advisors(): void
     {
         $organization = Organization::factory()->create();
-        $role = Role::factory()->create(['name' => 'associate']);
+        $role = Role::firstOrCreate(['name' => 'associate']);
         
         $project = Project::factory()->create(['organization_id' => $organization->id]);
 
@@ -174,7 +174,7 @@ class AdvisoryAssignmentTest extends TestCase
         $this->expectException(\Illuminate\Database\QueryException::class);
 
         $organization = Organization::factory()->create();
-        $role = Role::factory()->create(['name' => 'manager']);
+        $role = Role::firstOrCreate(['name' => 'manager']);
         $user = User::factory()->create([
             'organization_id' => $organization->id,
             'role_id' => $role->id,

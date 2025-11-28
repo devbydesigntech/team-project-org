@@ -20,7 +20,7 @@ class AdvisoryAssignmentFactory extends Factory
         $endsAt = fake()->optional(0.7)->dateTimeBetween($startsAt, '+3 months');
         
         $organization = \App\Models\Organization::factory()->create();
-        $role = \App\Models\Role::factory()->create();
+        $role = \App\Models\Role::firstOrCreate(['name' => fake()->randomElement(['executive', 'manager', 'associate'])]);
         
         return [
             'user_id' => \App\Models\User::factory()->create([

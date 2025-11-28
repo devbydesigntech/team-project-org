@@ -25,7 +25,7 @@ class ReviewTest extends TestCase
     public function test_review_belongs_to_reviewee()
     {
         $organization = Organization::factory()->create();
-        $role = Role::factory()->create();
+        $role = Role::inRandomOrder()->first();
         
         $reviewer = User::factory()->create([
             'organization_id' => $organization->id,
@@ -62,7 +62,7 @@ class ReviewTest extends TestCase
     public function test_user_has_reviews_written()
     {
         $organization = Organization::factory()->create();
-        $role = Role::factory()->create();
+        $role = Role::inRandomOrder()->first();
         
         $user = User::factory()->create([
             'organization_id' => $organization->id,
@@ -84,7 +84,7 @@ class ReviewTest extends TestCase
     public function test_user_has_reviews_received()
     {
         $organization = Organization::factory()->create();
-        $role = Role::factory()->create();
+        $role = Role::inRandomOrder()->first();
         
         $reviewer = User::factory()->create([
             'organization_id' => $organization->id,
@@ -112,7 +112,7 @@ class ReviewTest extends TestCase
     public function test_project_has_reviews()
     {
         $organization = Organization::factory()->create();
-        $role = Role::factory()->create();
+        $role = Role::inRandomOrder()->first();
         
         $user = User::factory()->create([
             'organization_id' => $organization->id,
@@ -134,8 +134,8 @@ class ReviewTest extends TestCase
     public function test_visible_reviewer_name_returns_anonymous_for_non_executives()
     {
         $organization = Organization::factory()->create();
-        $executiveRole = Role::factory()->create(['name' => 'executive']);
-        $associateRole = Role::factory()->create(['name' => 'associate']);
+        $executiveRole = Role::firstOrCreate(['name' => 'executive']);
+        $associateRole = Role::firstOrCreate(['name' => 'associate']);
         
         $reviewer = User::factory()->create([
             'organization_id' => $organization->id,
@@ -163,7 +163,7 @@ class ReviewTest extends TestCase
     public function test_visible_reviewer_name_returns_actual_name_for_executives()
     {
         $organization = Organization::factory()->create();
-        $executiveRole = Role::factory()->create(['name' => 'executive']);
+        $executiveRole = Role::firstOrCreate(['name' => 'executive']);
         
         $reviewer = User::factory()->create([
             'organization_id' => $organization->id,
@@ -191,7 +191,7 @@ class ReviewTest extends TestCase
     public function test_is_user_review_returns_true_when_reviewee_exists()
     {
         $organization = Organization::factory()->create();
-        $role = Role::factory()->create();
+        $role = Role::inRandomOrder()->first();
         
         $reviewer = User::factory()->create([
             'organization_id' => $organization->id,
@@ -220,7 +220,7 @@ class ReviewTest extends TestCase
     public function test_is_project_review_returns_true_when_no_reviewee()
     {
         $organization = Organization::factory()->create();
-        $role = Role::factory()->create();
+        $role = Role::inRandomOrder()->first();
         
         $reviewer = User::factory()->create([
             'organization_id' => $organization->id,

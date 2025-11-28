@@ -44,7 +44,7 @@ class ProjectTest extends TestCase
         $organization = Organization::factory()->create();
         $project = Project::factory()->create(['organization_id' => $organization->id]);
         
-        $role = Role::factory()->create();
+        $role = Role::inRandomOrder()->first();
         $manager = User::factory()->create([
             'organization_id' => $organization->id,
             'role_id' => $role->id,
@@ -70,7 +70,7 @@ class ProjectTest extends TestCase
     {
         $organization = Organization::factory()->create();
         
-        $role = Role::factory()->create();
+        $role = Role::inRandomOrder()->first();
         $manager = User::factory()->create([
             'organization_id' => $organization->id,
             'role_id' => $role->id,
@@ -95,7 +95,7 @@ class ProjectTest extends TestCase
     {
         $organization = Organization::factory()->create();
         
-        $role = Role::factory()->create();
+        $role = Role::inRandomOrder()->first();
         $manager = User::factory()->create([
             'organization_id' => $organization->id,
             'role_id' => $role->id,
@@ -142,7 +142,7 @@ class ProjectTest extends TestCase
         
         $organization = Organization::factory()->create();
         
-        $role = Role::factory()->create();
+        $role = Role::inRandomOrder()->first();
         $manager = User::factory()->create([
             'organization_id' => $organization->id,
             'role_id' => $role->id,

@@ -17,7 +17,7 @@ class ReviewFactory extends Factory
     public function definition(): array
     {
         $organization = \App\Models\Organization::factory()->create();
-        $role = \App\Models\Role::factory()->create();
+        $role = \App\Models\Role::firstOrCreate(['name' => fake()->randomElement(['executive', 'manager', 'associate'])]);
         
         $reviewer = \App\Models\User::factory()->create([
             'organization_id' => $organization->id,
